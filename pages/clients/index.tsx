@@ -9,12 +9,17 @@ import {
   TableRow,
   IconButton,
   TextField,
+  Button,
+  Box,
+  Typography,
 } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 import SaveIcon from "@material-ui/icons/Save";
 import CancelIcon from "@material-ui/icons/Cancel";
-import Pagination from "@material-ui/lab/Pagination";
+import SettingsIcon from "@material-ui/icons/Settings";
+
+// import Pagination from "@material-ui/lab/Pagination";
 
 interface Client {
   abilities: string;
@@ -38,26 +43,18 @@ interface Client {
 }
 
 const ClientTable: React.FC = () => {
-  // ****************************** STATES ******************************
   const [clients, setClients] = useState([]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState("");
 
-  // ****************************** STATES ******************************
-
-  // ****************************** EFFECT ******************************
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.get("https://dummyjson.com/users");
-      console.log(response.data.users);
-
       setClients(response.data.users);
     };
     fetchData();
   }, []);
-  // ****************************** EFFECT ******************************
 
-  // ****************************** HANDLES ******************************
   const handleEdit = (client: Client) => {
     if (editingId !== client.id) {
       setEditingId(client.id);
@@ -82,130 +79,163 @@ const ClientTable: React.FC = () => {
       setClients(updatedClients);
     }
   };
-  // ****************************** HANDLES ******************************
 
-  // ****************************** STYLES ******************************
-  const useStyles = makeStyles({
-    table: {
-      margin: "auto",
+  const useStyles = makeStyles((theme) => ({
+    div: {
+      display: "flex",
       width: "90%",
+      marginTop: "20px",
+      margin: "auto",
+      justifyContent: "space-between",
+      alignItems: "center",
+      backgroundColor: "white",
+      boxShadow: "0px 0px 10px 0px #888888",
+      borderRadius: "10px",
+
+      // flexDirection: "column",
+      // margin: theme.spacing(2),
+    },
+
+    title: {
+      margin: theme.spacing(2),
+    },
+
+    button: {
+      margin: theme.spacing(2),
+      backgroundColor: "#1590CB",
+      color: "#fff",
+      "&:hover": {
+        backgroundColor: "#1074a3",
+      },
+    },
+
+    table: {
+      marginTop: "20px",
+      margin: "auto",
+      minWidth: "400px",
+      width: "90%",
+      boxShadow: "0px 0px 10px 0px #888888",
+      borderRadius: "10px",
+      backgroundColor: "white",
+
       "& th": {
         backgroundColor: "#1590CB",
         color: "#fff",
+        paddingLeft: "30px",
+      },
+
+      "& td": {
+        paddingLeft: "30px",
+      },
+
+      "& th:first-child": {
+        color: "#fff",
+        borderRadius: "10px 0 0 0",
+      },
+      "& th:last-child": {
+        color: "#fff",
+        borderRadius: "0 10px 0 0",
+      },
+      "& tr:last-child td:first-child": {
+        borderRadius: "0 0 0 10px",
+      },
+      "& tr:last-child td:last-child": {
+        borderRadius: "0 0 10px 0",
       },
     },
-    editButton: {
-      height: "30px",
-      width: "30px",
-    },
-    saveButton: {
-      height: "30px",
-      width: "30px",
-    },
-    cancelButton: {
-      height: "30px",
-      width: "30px",
-    },
-    deleteButton: {
-      height: "30px",
-      width: "30px",
-    },
-  });
+  }));
 
   const classes = useStyles();
-  // ****************************** STYLES ******************************
 
   return (
-    <>
-      <Table className={classes.table}>
-        <TableHead>
-          <TableRow>
-            <TableCell>Id</TableCell>
-            <TableCell>firstName</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {clients.map((client) => (
-            <TableRow key={client.id}>
-              <TableCell>{client.id}</TableCell>
-              {editingId === client.id ? (
-                <TableCell>
-                  <TextField
-                    id="name"
-                    label="Name"
-                    value={client.firstName}
-                    onChange={(e) =>
-                      setClients(
-                        clients.map((c) =>
-                          c.id === client.id
-                            ? { ...c, firstName: e.target.value }
-                            : c
-                        )
-                      )
-                    }
-                  />
-                </TableCell>
-              ) : (
-                <TableCell>{client.firstName}</TableCell>
-              )}
-              {editingId === client.id ? (
-                <TableCell>
-                  <TextField
-                    id="code"
-                    label="Code"
-                    value={client.email}
-                    onChange={(e) =>
-                      setClients(
-                        clients.map((c) =>
-                          c.id === client.id
-                            ? { ...c, email: e.target.value }
-                            : c
-                        )
-                      )
-                    }
-                  />
-                </TableCell>
-              ) : (
-                <TableCell>{client.email}</TableCell>
-              )}
-              <TableCell>
-                {editingId === client.id ? (
-                  <>
-                    <IconButton
-                      className={classes.deleteButton}
-                      onClick={() => handleDelete(client.id)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                    <IconButton
-                      className={classes.cancelButton}
-                      onClick={() => handleEdit(client)}
-                    >
-                      <CancelIcon />
-                    </IconButton>
-                    <IconButton
-                      className={classes.saveButton}
-                      onClick={() => handleSave(client)}
-                    >
-                      <SaveIcon />
-                    </IconButton>
-                  </>
-                ) : (
-                  <IconButton
-                    className={classes.editButton}
-                    onClick={() => handleEdit(client)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                )}
-              </TableCell>
+    <div>
+      <div className={classes.div}>
+        <Typography variant="h5" className={classes.title}>
+          Clients
+        </Typography>
+        <Button variant="contained" color="primary" className={classes.button}>
+          <SettingsIcon />
+        </Button>
+      </div>
+      <Box>
+        <Table className={classes.table}>
+          <TableHead>
+            <TableRow>
+              <TableCell>Id</TableCell>
+              <TableCell>firstName</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </>
+          </TableHead>
+          <TableBody>
+            {clients.map((client) => (
+              <TableRow key={client.id}>
+                <TableCell>{client.id}</TableCell>
+                {editingId === client.id ? (
+                  <TableCell>
+                    <TextField
+                      id="name"
+                      label="Name"
+                      value={client.firstName}
+                      onChange={(e) =>
+                        setClients(
+                          clients.map((c) =>
+                            c.id === client.id
+                              ? { ...c, firstName: e.target.value }
+                              : c
+                          )
+                        )
+                      }
+                    />
+                  </TableCell>
+                ) : (
+                  <TableCell>{client.firstName}</TableCell>
+                )}
+                {editingId === client.id ? (
+                  <TableCell>
+                    <TextField
+                      id="code"
+                      label="Code"
+                      value={client.email}
+                      onChange={(e) =>
+                        setClients(
+                          clients.map((c) =>
+                            c.id === client.id
+                              ? { ...c, email: e.target.value }
+                              : c
+                          )
+                        )
+                      }
+                    />
+                  </TableCell>
+                ) : (
+                  <TableCell>{client.email}</TableCell>
+                )}
+                <TableCell>
+                  {editingId === client.id ? (
+                    <>
+                      <IconButton onClick={() => handleDelete(client.id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                      <IconButton onClick={() => handleEdit(client)}>
+                        <CancelIcon />
+                      </IconButton>
+                      <IconButton onClick={() => handleSave(client)}>
+                        <SaveIcon />
+                      </IconButton>
+                    </>
+                  ) : (
+                    <IconButton onClick={() => handleEdit(client)}>
+                      <EditIcon />
+                    </IconButton>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Box>
+    </div>
   );
 };
 
