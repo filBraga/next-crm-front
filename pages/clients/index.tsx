@@ -11,13 +11,13 @@ import {
   TextField,
   Button,
   Box,
-  Typography,
 } from "@material-ui/core";
-import EditIcon from "@material-ui/icons/Edit";
+import VisibilityIcon from "@material-ui/icons/Visibility";
 import DeleteIcon from "@material-ui/icons/Delete";
 import SaveIcon from "@material-ui/icons/Save";
 import CancelIcon from "@material-ui/icons/Cancel";
 import SettingsIcon from "@material-ui/icons/Settings";
+import styles from "./Style.module.scss";
 
 // import Pagination from "@material-ui/lab/Pagination";
 
@@ -45,12 +45,14 @@ interface Client {
 const ClientTable: React.FC = () => {
   const [clients, setClients] = useState([]);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [searchValue, setSearchValue] = useState("");
+  const [search, setSearch] = useState("");
+  const [filteredData, setFilteredData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.get("https://dummyjson.com/users");
       setClients(response.data.users);
+      setFilteredData(response.data.users);
     };
     fetchData();
   }, []);
@@ -80,155 +82,57 @@ const ClientTable: React.FC = () => {
     }
   };
 
-  const useStyles = makeStyles((theme) => ({
-    div: {
-      display: "flex",
-      width: "90%",
-      marginTop: "20px",
-      margin: "auto",
-      justifyContent: "space-between",
-      alignItems: "center",
-      backgroundColor: "white",
-      boxShadow: "0px 0px 10px 0px #888888",
-      borderRadius: "10px",
-
-      // flexDirection: "column",
-      // margin: theme.spacing(2),
-    },
-
-    title: {
-      margin: theme.spacing(2),
-    },
-
-    button: {
-      margin: theme.spacing(2),
-      backgroundColor: "#1590CB",
-      color: "#fff",
-      "&:hover": {
-        backgroundColor: "#1074a3",
-      },
-    },
-
-    table: {
-      marginTop: "20px",
-      margin: "auto",
-      minWidth: "400px",
-      width: "90%",
-      boxShadow: "0px 0px 10px 0px #888888",
-      borderRadius: "10px",
-      backgroundColor: "white",
-
-      "& th": {
-        backgroundColor: "#1590CB",
-        color: "#fff",
-        paddingLeft: "30px",
-      },
-
-      "& td": {
-        paddingLeft: "30px",
-      },
-
-      "& th:first-child": {
-        color: "#fff",
-        borderRadius: "10px 0 0 0",
-      },
-      "& th:last-child": {
-        color: "#fff",
-        borderRadius: "0 10px 0 0",
-      },
-      "& tr:last-child td:first-child": {
-        borderRadius: "0 0 0 10px",
-      },
-      "& tr:last-child td:last-child": {
-        borderRadius: "0 0 10px 0",
-      },
-    },
-  }));
-
-  const classes = useStyles();
+  const handleSearch = (event) => {
+    setSearch(event.target.value);
+    setFilteredData(
+      clients.filter((item) =>
+        item.firstName.toLowerCase().includes(event.target.value.toLowerCase())
+      )
+    );
+  };
 
   return (
     <div>
-      <div className={classes.div}>
-        <Typography variant="h5" className={classes.title}>
-          Clients
-        </Typography>
-        <Button variant="contained" color="primary" className={classes.button}>
-          <SettingsIcon />
-        </Button>
+      <div className={styles.div}>
+        <TextField
+          id="standard-basic"
+          label="Name"
+          value={search}
+          onChange={handleSearch}
+          style={{
+            display: "block",
+            marginLeft: 30,
+            marginRight: "auto",
+          }}
+        />
+        <div
+          style={{
+            display: "block",
+            marginLeft: "auto",
+            marginRight: 0,
+          }}
+        >
+          <Button className={styles.button}>New Client</Button>
+        </div>
       </div>
-      <Box>
-        <Table className={classes.table}>
+      <Box className={styles.box}>
+        <Table className={styles.table}>
           <TableHead>
             <TableRow>
               <TableCell>Id</TableCell>
-              <TableCell>firstName</TableCell>
+              <TableCell>First Name</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {clients.map((client) => (
+            {filteredData.map((client) => (
               <TableRow key={client.id}>
                 <TableCell>{client.id}</TableCell>
-                {editingId === client.id ? (
-                  <TableCell>
-                    <TextField
-                      id="name"
-                      label="Name"
-                      value={client.firstName}
-                      onChange={(e) =>
-                        setClients(
-                          clients.map((c) =>
-                            c.id === client.id
-                              ? { ...c, firstName: e.target.value }
-                              : c
-                          )
-                        )
-                      }
-                    />
-                  </TableCell>
-                ) : (
-                  <TableCell>{client.firstName}</TableCell>
-                )}
-                {editingId === client.id ? (
-                  <TableCell>
-                    <TextField
-                      id="code"
-                      label="Code"
-                      value={client.email}
-                      onChange={(e) =>
-                        setClients(
-                          clients.map((c) =>
-                            c.id === client.id
-                              ? { ...c, email: e.target.value }
-                              : c
-                          )
-                        )
-                      }
-                    />
-                  </TableCell>
-                ) : (
-                  <TableCell>{client.email}</TableCell>
-                )}
+                <TableCell>{client.firstName}</TableCell>
+                <TableCell>{client.email}</TableCell>
                 <TableCell>
-                  {editingId === client.id ? (
-                    <>
-                      <IconButton onClick={() => handleDelete(client.id)}>
-                        <DeleteIcon />
-                      </IconButton>
-                      <IconButton onClick={() => handleEdit(client)}>
-                        <CancelIcon />
-                      </IconButton>
-                      <IconButton onClick={() => handleSave(client)}>
-                        <SaveIcon />
-                      </IconButton>
-                    </>
-                  ) : (
-                    <IconButton onClick={() => handleEdit(client)}>
-                      <EditIcon />
-                    </IconButton>
-                  )}
+                  <VisibilityIcon style={{ color: "gray" }} />
                 </TableCell>
               </TableRow>
             ))}
